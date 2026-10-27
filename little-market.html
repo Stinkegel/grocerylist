@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Little Market — Grocery List</title>
+
+    <style>
+        :root {
+            --green: #477653;
+            --green-dark: #31563a;
+            --green-light: #e8f0e7;
+            --cream: #faf8f2;
+            --paper: #ffffff;
+            --text: #30382f;
+            --muted: #788076;
+            --border: #e5e7df;
+            --red: #b44e45;
+            --shadow: 0 8px 28px rgba(43, 59, 40, 0.07);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--cream);
+            color: var(--text);
+            font-family: "Segoe UI", Arial, sans-serif;
+            line-height: 1.5;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            outline: 3px solid #b3cfad;
+            outline-offset: 2px;
+        }
+
+        .app {
+            width: min(100% - 32px, 960px);
+            margin: 0 auto;
+            padding: 36px 0 48px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: inline-grid;
+            place-items: center;
+            width: 66px;
+            height: 66px;
+            background: var(--green-light);
+            border-radius: 22px;
+            font-size: 34px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(2.1rem, 6vw, 3.2rem);
+            line-height: 1.15;
+            margin: 0;
+            letter-spacing: -1px;
+            color: var(--green-dark);
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin: 9px 0 0;
+        }
+
+        .panel {
+            background: var(--paper);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.4rem;
+            margin: 0 0 18px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 0.8fr 1.3fr 1fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .field {
+            min-width: 0;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 650;
+            margin-bottom: 6px;
+            color: #596256;
+        }
+
+        input,
+        select {
+            width: 100%;
+            min-width: 0;
+            border: 1px solid #dfe3d9;
+            background: #fff;
+            border-radius: 10px;
+            padding: 11px 12px;
+            color: var(--text);
+        }
+
+        input::placeholder {
+            color: #a1a79d;
+        }
+
+        .form-bottom {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: end;
+            gap: 14px;
+        }
+
+        .price-note {
+            color: var(--muted);
+            font-size: 0.8rem;
+            margin: 6px 0 0;
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 10px;
+            padding: 11px 16px;
+            font-weight: 650;
+            transition: background 0.15s, transform 0.15s;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-primary {
+            background: var(--green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--green-dark);
+        }
+
+        .btn-secondary {
+            background: #eef1e9;
+            color: var(--green-dark);
+        }
+
+        .btn-secondary:hover {
+            background: #e1e8dc;
+        }
+
+        .btn-danger {
+            background: #fbefed;
+            color: var(--red);
+        }
+
+        .btn-danger:hover {
+            background: #f5dfdc;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            padding: 18px;
+            background: var(--paper);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            min-width: 0;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 0.82rem;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(1.35rem, 4vw, 1.9rem);
+            font-weight: 700;
+            color: var(--green-dark);
+            overflow-wrap: anywhere;
+        }
+
+        .progress-track {
+            height: 7px;
+            border-radius: 10px;
+            background: #e9ece5;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            width: 0;
+            height: 100%;
+            background: var(--green);
+            transition: width 0.2s;
+        }
+
+        .list-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .list-heading .section-title {
+            margin: 0;
+        }
+
+        .sort-control {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .sort-control select {
+            width: auto;
+            max-width: 210px;
+            padding: 9px 10px;
+        }
+
+        .list-summary {
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin: 0 0 12px;
+        }
+
+        .item-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .item {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            gap: 13px;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: #fff;
+        }
+
+        .item.bought {
+            background: #f8faf6;
+        }
+
+        .item-check {
+            width: 21px;
+            height: 21px;
+            accent-color: var(--green);
+            cursor: pointer;
+        }
+
+        .item-main {
+            min-width: 0;
+        }
+
+        .item-name {
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .bought .item-name {
+            color: #8b9387;
+            text-decoration: line-through;
+        }
+
+        .item-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px 10px;
+            color: var(--muted);
+            font-size: 0.81rem;
+            margin-top: 4px;
+        }
+
+        .category-tag {
+            background: var(--green-light);
+            color: var(--green-dark);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+
+        .item-right {
+            text-align: right;
+            min-width: 95px;
+        }
+
+        .item-total {
+            font-weight: 750;
+            white-space: nowrap;
+        }
+
+        .unit-price {
+            font-size: 0.76rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .item-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+            margin-top: 7px;
+        }
+
+        .icon-btn {
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 8px;
+            padding: 5px 8px;
+            color: #596256;
+            font-size: 0.8rem;
+        }
+
+        .icon-btn:hover {
+            background: #f0f3ec;
+        }
+
+        .icon-btn.delete:hover {
+            background: #fbefed;
+            color: var(--red);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 36px 15px;
+            border: 1px dashed #d8ded2;
+            border-radius: 13px;
+            color: var(--muted);
+        }
+
+        .empty-icon {
+            font-size: 35px;
+            margin-bottom: 7px;
+        }
+
+        .empty-state strong {
+            display: block;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .list-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .footer-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+        }
+
+        .list-total {
+            text-align: right;
+            margin-left: auto;
+        }
+
+        .list-total .muted {
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+
+        .list-total strong {
+            display: block;
+            font-size: 1.45rem;
+            color: var(--green-dark);
+        }
+
+        .notice {
+            color: var(--muted);
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 680px) {
+            .app {
+                width: min(100% - 22px, 960px);
+                padding-top: 24px;
+            }
+
+            .panel {
+                padding: 17px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .form-bottom {
+                grid-template-columns: 1fr;
+            }
+
+            .form-bottom .btn {
+                width: 100%;
+            }
+
+            .stats {
+                gap: 8px;
+            }
+
+            .stat {
+                padding: 12px;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+            }
+
+            .item {
+                grid-template-columns: auto minmax(0, 1fr);
+                gap: 10px;
+            }
+
+            .item-right {
+                grid-column: 2;
+                text-align: left;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 8px;
+                min-width: 0;
+            }
+
+            .item-actions {
+                margin-top: 0;
+            }
+
+            .list-total {
+                text-align: left;
+                margin-left: 0;
+            }
+        }
+
+        @media print {
+            @page {
+                margin: 15mm;
+            }
+
+            body {
+                background: white;
+                color: #222;
+                font-size: 10pt;
+            }
+
+            .app {
+                width: 100%;
+                padding: 0;
+            }
+
+            header {
+                margin-bottom: 18px;
+            }
+
+            .logo {
+                display: none;
+            }
+
+            h1 {
+                font-size: 26pt;
+            }
+
+            .panel,
+            .stat {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                break-inside: avoid;
+            }
+
+            .no-print,
+            .item-actions,
+            .progress-track,
+            .notice {
+                display: none !important;
+            }
+
+            .stats {
+                gap: 8px;
+            }
+
+            .stat {
+                padding: 10px;
+            }
+
+            .item {
+                padding: 8px 10px;
+                break-inside: avoid;
+            }
+
+            .item.bought .item-name {
+                text-decoration: none;
+                color: #222;
+            }
+
+            .item-check {
+                appearance: auto;
+            }
+
+            .item-list {
+                gap: 5px;
+            }
+
+            .list-footer {
+                border-top: 1px solid #ccc;
+                padding-top: 12px;
+            }
+
+            .category-tag {
+                background: none;
+                color: #333;
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="app">
+        <header>
+            <div class="logo" aria-hidden="true">🧺</div>
+            <h1>Little Market</h1>
+            <p class="subtitle">A list for everything you need! Now including yogurt! -Stinkegel.</p>
+        </header>
+
+        <section class="panel no-print" aria-labelledby="add-title">
+            <h2 class="section-title" id="add-title">Add to your basket</h2>
+
+            <form id="product-form">
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="product-name">Product name</label>
+                        <input id="product-name" type="text" placeholder="e.g. Fresh apples" maxlength="120" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="product-quantity">Quantity</label>
+                        <input id="product-quantity" type="number" min="0.01" max="999999" step="any" value="1"
+                            required>
+                    </div>
+
+                    <div class="field">
+                        <label for="product-category">Category</label>
+                        <select id="product-category">
+                            <option>Fruit &amp; Veg</option>
+                            <option>Dairy &amp; Eggs</option>
+                            <option>Bakery</option>
+                            <option>Meat &amp; Fish</option>
+                            <option>Household</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="product-price">Price per unit (€)</label>
+                        <input id="product-price" type="number" min="0" max="999999" step="0.01"
+                            placeholder="e.g. 2.49">
+                    </div>
+                </div>
+
+                <div class="form-bottom">
+                    <p class="price-note">
+                        Prices are optional. Leave a price blank if you don't know it yet.
+                    </p>
+                    <button class="btn btn-primary" type="submit">
+                        + Add product
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="stats" aria-label="Shopping summary">
+            <div class="stat">
+                <div class="stat-label">Products on list</div>
+                <div class="stat-value" id="stat-items">0</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-label">Estimated total</div>
+                <div class="stat-value" id="stat-total">€0.00</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-label">Already bought</div>
+                <div class="stat-value" id="stat-bought">0 / 0</div>
+                <div class="progress-track" role="progressbar" aria-label="Shopping progress" aria-valuemin="0"
+                    aria-valuemax="100" aria-valuenow="0" id="progress-track">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel" aria-labelledby="list-title">
+            <div class="list-heading">
+                <h2 class="section-title" id="list-title">Your shopping list</h2>
+
+                <div class="sort-control no-print">
+                    <label for="sort-by">Sort by</label>
+                    <select id="sort-by">
+                        <option value="created">Date added</option>
+                        <option value="name">Name (A–Z)</option>
+                        <option value="category">Category</option>
+                        <option value="price-high">Price (high–low)</option>
+                        <option value="price-low">Price (low–high)</option>
+                        <option value="quantity">Quantity</option>
+                        <option value="status">Purchase status</option>
+                    </select>
+                </div>
+            </div>
+
+            <p class="list-summary" id="list-summary" aria-live="polite">
+                Your list is waiting for its first product.
+            </p>
+
+            <div class="item-list" id="item-list"></div>
+
+            <div class="list-footer">
+                <div class="footer-actions no-print">
+                    <button class="btn btn-secondary" id="print-btn" type="button">
+                        🖨 Print / Save PDF
+                    </button>
+                    <button class="btn btn-secondary" id="clear-bought-btn" type="button">
+                        Remove bought
+                    </button>
+                    <button class="btn btn-danger" id="clear-all-btn" type="button">
+                        Clear list
+                    </button>
+                </div>
+
+                <div class="list-total">
+                    <span class="muted">Cost of bought products</span>
+                    <strong id="bought-total">€0.00</strong>
+                    <span class="muted">Estimated remaining: </span>
+                    <strong id="remaining-total">€0.00</strong>
+                </div>
+            </div>
+        </section>
+
+        <p class="notice">
+            Your list is saved automatically in this browser on this device.
+        </p>
+    </main>
+
+    <script>
+        (() => {
+            "use strict";
+
+            const STORAGE_KEY = "little-market-grocery-list-v1";
+
+            const CATEGORIES = [
+                "Fruit & Veg",
+                "Dairy & Eggs",
+                "Bakery",
+                "Meat & Fish",
+                "Household",
+                "Other"
+            ];
+
+            const $ = (id) => document.getElementById(id);
+
+            const form = $("product-form");
+            const nameInput = $("product-name");
+            const quantityInput = $("product-quantity");
+            const categoryInput = $("product-category");
+            const priceInput = $("product-price");
+            const sortInput = $("sort-by");
+            const itemList = $("item-list");
+
+            let products = loadProducts();
+
+            function makeId() {
+                if (window.crypto && typeof window.crypto.randomUUID === "function") {
+                    return window.crypto.randomUUID();
+                }
+
+                return Date.now().toString(36) +
+                    Math.random().toString(36).slice(2);
+            }
+
+            function normalizeProduct(item, index) {
+                const rawQuantity = Number(item.quantity);
+                const rawPrice = item.price;
+
+                const price = rawPrice === "" ||
+                    rawPrice === null ||
+                    rawPrice === undefined ||
+                    !Number.isFinite(Number(rawPrice)) ||
+                    Number(rawPrice) < 0
+                    ? null
+                    : Number(rawPrice);
+
+                const category = CATEGORIES.includes(item.category)
+                    ? item.category
+                    : "Other";
+
+                return {
+                    id: String(item.id || ("legacy-" + index + "-" + makeId())),
+                    name: String(item.name || item.product || "Unnamed product"),
+                    quantity: Number.isFinite(rawQuantity) && rawQuantity > 0
+                        ? rawQuantity
+                        : 1,
+                    category,
+                    price,
+                    bought: Boolean(item.bought || item.completed),
+                    createdAt: Number.isFinite(Number(item.createdAt))
+                        ? Number(item.createdAt)
+                        : index
+                };
+            }
+
+            function loadProducts() {
+                try {
+                    const stored = localStorage.getItem(STORAGE_KEY);
+
+                    if (!stored) return [];
+
+                    const parsed = JSON.parse(stored);
+
+                    if (!Array.isArray(parsed)) return [];
+
+                    return parsed.map(normalizeProduct);
+                } catch (error) {
+                    console.warn("Could not load Little Market data:", error);
+                    return [];
+                }
+            }
+
+            function saveProducts() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+                } catch (error) {
+                    console.warn("Could not save Little Market data:", error);
+                    alert(
+                        "Your list could not be saved. Check whether browser storage is available."
+                    );
+                }
+            }
+
+            function euro(value) {
+                return new Intl.NumberFormat("nl-NL", {
+                    style: "currency",
+                    currency: "EUR"
+                }).format(value);
+            }
+
+            function formatQuantity(value) {
+                return new Intl.NumberFormat("nl-NL", {
+                    maximumFractionDigits: 3
+                }).format(value);
+            }
+
+            function itemCost(product) {
+                return product.price === null
+                    ? null
+                    : product.quantity * product.price;
+            }
+
+            function totalCost(list) {
+                return list.reduce((sum, product) => {
+                    return sum + (itemCost(product) ?? 0);
+                }, 0);
+            }
+
+            function createElement(tag, className, text) {
+                const element = document.createElement(tag);
+
+                if (className) element.className = className;
+                if (text !== undefined) element.textContent = text;
+
+                return element;
+            }
+
+            function createButton(label, className, onClick, title) {
+                const button = createElement("button", className, label);
+
+                button.type = "button";
+
+                if (title) button.title = title;
+
+                button.addEventListener("click", onClick);
+
+                return button;
+            }
+
+            function getSortedProducts() {
+                const result = [...products];
+
+                switch (sortInput.value) {
+                    case "name":
+                        result.sort((a, b) =>
+                            a.name.localeCompare(b.name, undefined, {
+                                sensitivity: "base"
+                            })
+                        );
+                        break;
+
+                    case "category":
+                        result.sort((a, b) =>
+                            a.category.localeCompare(b.category) ||
+                            a.name.localeCompare(b.name)
+                        );
+                        break;
+
+                    case "price-high":
+                        result.sort((a, b) =>
+                            (b.price ?? -1) - (a.price ?? -1)
+                        );
+                        break;
+
+                    case "price-low":
+                        result.sort((a, b) => {
+                            const priceA = a.price ?? Infinity;
+                            const priceB = b.price ?? Infinity;
+                            return priceA - priceB;
+                        });
+                        break;
+
+                    case "quantity":
+                        result.sort((a, b) => b.quantity - a.quantity);
+                        break;
+
+                    case "status":
+                        result.sort((a, b) =>
+                            Number(a.bought) - Number(b.bought)
+                        );
+                        break;
+
+                    case "created":
+                    default:
+                        result.sort((a, b) => a.createdAt - b.createdAt);
+                }
+
+                return result;
+            }
+
+            function renderProduct(product) {
+                const article = createElement(
+                    "article",
+                    "item" + (product.bought ? " bought" : "")
+                );
+
+                const checkbox = createElement("input", "item-check");
+                checkbox.type = "checkbox";
+                checkbox.checked = product.bought;
+                checkbox.setAttribute(
+                    "aria-label",
+                    "Mark " + product.name + " as bought"
+                );
+
+                checkbox.addEventListener("change", () => {
+                    updateProduct(product.id, {
+                        bought: checkbox.checked
+                    });
+                });
+
+                const main = createElement("div", "item-main");
+                const name = createElement("div", "item-name", product.name);
+                const meta = createElement("div", "item-meta");
+
+                const category = createElement(
+                    "span",
+                    "category-tag",
+                    product.category
+                );
+
+                const quantity = createElement(
+                    "span",
+                    "",
+                    "Qty: " + formatQuantity(product.quantity)
+                );
+
+                meta.append(category, quantity);
+                main.append(name, meta);
+
+                const right = createElement("div", "item-right");
+                const priceBlock = createElement("div");
+                const cost = itemCost(product);
+
+                const total = createElement(
+                    "div",
+                    "item-total",
+                    cost === null ? "Price not set" : euro(cost)
+                );
+
+                const unitPrice = createElement(
+                    "div",
+                    "unit-price",
+                    product.price === null
+                        ? "Add a price when known"
+                        : euro(product.price) + " per unit"
+                );
+
+                priceBlock.append(total, unitPrice);
+
+                const actions = createElement("div", "item-actions");
+                actions.append(
+                    createButton(
+                        "Edit",
+                        "icon-btn",
+                        () => editProduct(product),
+                        "Edit product details"
+                    ),
+                    createButton(
+                        "Delete",
+                        "icon-btn delete",
+                        () => deleteProduct(product.id),
+                        "Delete this product"
+                    )
+                );
+
+                right.append(priceBlock, actions);
+                article.append(checkbox, main, right);
+
+                return article;
+            }
+
+            function render() {
+                itemList.replaceChildren();
+
+                const sorted = getSortedProducts();
+
+                if (sorted.length === 0) {
+                    const empty = createElement("div", "empty-state");
+                    const icon = createElement("div", "empty-icon", "🛒");
+                    const title = createElement("strong", "", "Your basket is empty");
+                    const message = createElement(
+                        "span",
+                        "",
+                        "Add your first product above to get started."
+                    );
+
+                    empty.append(icon, title, message);
+                    itemList.append(empty);
+                } else {
+                    sorted.forEach((product) => {
+                        itemList.append(renderProduct(product));
+                    });
+                }
+
+                const bought = products.filter((product) => product.bought);
+                const notBought = products.filter((product) => !product.bought);
+                const boughtCount = bought.length;
+                const totalCount = products.length;
+                const percentage = totalCount
+                    ? Math.round((boughtCount / totalCount) * 100)
+                    : 0;
+
+                $("stat-items").textContent = String(totalCount);
+                $("stat-total").textContent = euro(totalCost(products));
+                $("stat-bought").textContent = boughtCount + " / " + totalCount;
+
+                $("progress-fill").style.width = percentage + "%";
+                $("progress-track").setAttribute("aria-valuenow", String(percentage));
+
+                $("bought-total").textContent = euro(totalCost(bought));
+                $("remaining-total").textContent = euro(totalCost(notBought));
+
+                const unpriced = products.filter(
+                    (product) => product.price === null
+                ).length;
+
+                $("list-summary").textContent = totalCount === 0
+                    ? "Your list is waiting for its first product."
+                    : boughtCount + " of " + totalCount + " products bought" +
+                    (unpriced ? " · " + unpriced + " without a price" : "");
+
+                $("clear-bought-btn").disabled = boughtCount === 0;
+                $("clear-bought-btn").style.opacity =
+                    boughtCount === 0 ? "0.55" : "1";
+
+                $("clear-all-btn").disabled = totalCount === 0;
+                $("clear-all-btn").style.opacity =
+                    totalCount === 0 ? "0.55" : "1";
+            }
+
+            function updateProduct(id, changes) {
+                products = products.map((product) =>
+                    product.id === id
+                        ? {...product, ...changes}
+                        : product
+                );
+
+                saveProducts();
+                render();
+            }
+
+            function deleteProduct(id) {
+                const product = products.find((item) => item.id === id);
+
+                if (!product) return;
+
+                if (!confirm('Delete "' + product.name + '" from your list?')) {
+                    return;
+                }
+
+                products = products.filter((item) => item.id !== id);
+                saveProducts();
+                render();
+            }
+
+            function editProduct(product) {
+                const newName = prompt("Product name:", product.name);
+
+                if (newName === null) return;
+
+                const cleanName = newName.trim();
+
+                if (!cleanName) {
+                    alert("Product name cannot be empty.");
+                    return;
+                }
+
+                const newQuantity = prompt(
+                    "Quantity:",
+                    String(product.quantity)
+                );
+
+                if (newQuantity === null) return;
+
+                const quantity = Number(newQuantity);
+
+                if (!Number.isFinite(quantity) || quantity <= 0) {
+                    alert("Please enter a quantity greater than zero.");
+                    return;
+                }
+
+                const categoryOptions = CATEGORIES.map(
+                    (category, index) => (index + 1) + ". " + category
+                ).join("\n");
+
+                const newCategory = prompt(
+                    "Choose a category by number:\n" + categoryOptions,
+                    String(CATEGORIES.indexOf(product.category) + 1)
+                );
+
+                if (newCategory === null) return;
+
+                const categoryIndex = Number(newCategory) - 1;
+
+                if (
+                    !Number.isInteger(categoryIndex) ||
+                    categoryIndex < 0 ||
+                    categoryIndex >= CATEGORIES.length
+                ) {
+                    alert("Please enter a valid category number.");
+                    return;
+                }
+
+                const currentPrice = product.price === null
+                    ? ""
+                    : String(product.price);
+
+                const newPrice = prompt(
+                    "Price per unit in euros (leave blank for unknown):",
+                    currentPrice
+                );
+
+                if (newPrice === null) return;
+
+                let price = null;
+
+                if (newPrice.trim() !== "") {
+                    price = Number(newPrice.replace(",", "."));
+
+                    if (!Number.isFinite(price) || price < 0) {
+                        alert("Please enter a valid price of zero or more.");
+                        return;
+                    }
+                }
+
+                updateProduct(product.id, {
+                    name: cleanName,
+                    quantity,
+                    category: CATEGORIES[categoryIndex],
+                    price
+                });
+            }
+
+            form.addEventListener("submit", (event) => {
+                event.preventDefault();
+
+                const name = nameInput.value.trim();
+                const quantity = Number(quantityInput.value);
+                const rawPrice = priceInput.value.trim();
+
+                if (!name) {
+                    nameInput.focus();
+                    return;
+                }
+
+                if (
+                    !Number.isFinite(quantity) ||
+                    quantity <= 0 ||
+                    quantity > 999999
+                ) {
+                    alert("Please enter a valid quantity greater than zero.");
+                    quantityInput.focus();
+                    return;
+                }
+
+                let price = null;
+
+                if (rawPrice !== "") {
+                    price = Number(rawPrice);
+
+                    if (
+                        !Number.isFinite(price) ||
+                        price < 0 ||
+                        price > 999999
+                    ) {
+                        alert("Please enter a valid price of zero or more.");
+                        priceInput.focus();
+                        return;
+                    }
+                }
+
+                products.push({
+                    id: makeId(),
+                    name,
+                    quantity,
+                    category: categoryInput.value,
+                    price,
+                    bought: false,
+                    createdAt: Date.now()
+                });
+
+                saveProducts();
+                render();
+
+                form.reset();
+                quantityInput.value = "1";
+                categoryInput.value = "Other";
+                nameInput.focus();
+            });
+
+            sortInput.addEventListener("change", render);
+
+            $("clear-bought-btn").addEventListener("click", () => {
+                const count = products.filter((product) => product.bought).length;
+
+                if (count === 0) return;
+
+                if (!confirm("Remove all " + count + " bought product(s)?")) {
+                    return;
+                }
+
+                products = products.filter((product) => !product.bought);
+                saveProducts();
+                render();
+            });
+
+            $("clear-all-btn").addEventListener("click", () => {
+                if (products.length === 0) return;
+
+                if (!confirm("Clear your entire shopping list? This cannot be undone.")) {
+                    return;
+                }
+
+                products = [];
+                saveProducts();
+                render();
+            });
+
+            $("print-btn").addEventListener("click", () => {
+                window.print();
+            });
+
+            render();
+        })();
+    </script>
+</body>
+
+</html>
